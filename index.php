@@ -36,9 +36,17 @@ if (isset($_GET['action']) && $_GET['action'] == 'search') {
     $data_list = [];
     foreach ($results as $row) {
         if (!empty($row['new_file_name'])) {
-            $m_num = (int)$row['report_month'];
-            $row['month_display'] = $thai_months[$m_num] ?? "ไม่ระบุเดือน";
-            $row['file_url'] = "processed_PDFs/" . $row['new_file_name']; // Path ไฟล์
+            // แยกส่วนชื่อไฟล์ด้วยเครื่องหมายขีด (-)
+            $parts = explode('-', $row['new_file_name']);
+
+            // ตามโครงสร้าง: เลขบัตร(0) - วันที่(1) - เดือน(2) - ปี(3)
+            $day = isset($parts[1]) ? (int)$parts[1] : '';
+            $month_num = isset($parts[2]) ? (int)$parts[2] : 0;
+
+            // สร้างข้อความแสดงผล เช่น "วันที่ 15 เดือนมกราคม"
+            $row['date_display'] = ($day ? "วันที่ " . $day . " " : "") . "เดือน" . ($thai_months[$month_num] ?? "ไม่ระบุเดือน");
+
+            $row['file_url'] = "processed_PDFs/" . $row['new_file_name'];
             $data_list[] = $row;
         }
     }
@@ -190,38 +198,37 @@ if (isset($_GET['action']) && $_GET['action'] == 'search') {
         }
 
         function renderResult(data) {
-            const p = data.personal;
+            const personal = data.personal;
             const files = data.results;
-            const fullName = `${p.prefix}${p.first_name} ${p.last_name}`;
+            const fullName = `${personal.prefix}${personal.first_name} ${personal.last_name}`;
 
             let html = `
         <div class="info-card shadow-sm">
             <div class="info-header">รายละเอียดข้อมูลผู้เสียภาษี</div>
             <div class="row mb-4">
                 <div class="col-md-4"><span class="info-label">ชื่อ-นามสกุล</span><span class="info-value">${fullName}</span></div>
-                <div class="col-md-4"><span class="info-label">รายได้รวมสะสม</span><span class="info-value">${Number(p.amount_paid).toLocaleString()} บาท</span></div>
-                <div class="col-md-4"><span class="info-label">ภาษีที่หักรวมสะสม</span><span class="info-value text-danger">${Number(p.tax_withheld).toLocaleString()} บาท</span></div>
+                <div class="col-md-4"><span class="info-label">รายได้รวมสะสม</span><span class="info-value">${Number(personal.amount_paid).toLocaleString()} บาท</span></div>
+                <div class="col-md-4"><span class="info-label">ภาษีที่หักรวมสะสม</span><span class="info-value text-danger">${Number(personal.tax_withheld).toLocaleString()} บาท</span></div>
             </div>
             
-            <h6 class="fw-bold mt-4 mb-3"><i class="bi bi-file-pdf"></i> รายการเอกสารแยกตามเดือน:</h6>
+            <h6 class="fw-bold mt-4 mb-3">รายการเอกสาร PDF:</h6>
             <div class="pdf-list-container">`;
 
             if (files.length > 0) {
-                // วนลูปสร้างรายการแบบลิสต์ แทน Dropdown
                 files.forEach(item => {
                     html += `
-                <div class="pdf-list-item d-flex justify-content-between align-items-center">
+                <div class="pdf-list-item d-flex justify-content-between align-items-center p-3 border rounded mb-2">
                     <div>
-                        <span class="fw-bold text-dark">เดือน${item.month_display}</span>
+                        <span class="fw-bold text-dark">${item.date_display}</span>
                         <div class="text-muted small">ไฟล์: ${item.new_file_name}</div>
                     </div>
-                    <button class="btn btn-warning text-white fw-bold shadow-sm" onclick="window.open('${item.file_url}', '_blank')">
+                    <button class="btn btn-warning text-white fw-bold" onclick="window.open('${item.file_url}', '_blank')">
                         📄 เปิดดูเอกสาร
                     </button>
                 </div>`;
                 });
             } else {
-                html += '<p class="text-center text-muted p-3">--- ไม่พบไฟล์เอกสาร PDF ---</p>';
+                html += '<p class="text-center text-muted">--- ไม่พบไฟล์เอกสาร PDF ---</p>';
             }
 
             html += `</div></div>`;
