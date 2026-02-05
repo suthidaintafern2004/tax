@@ -157,7 +157,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'search') {
 <body>
 
     <div class="search-container text-center">
-        <h2 class="mb-4 fw-bold">ระบบค้นหาข้อมูลผู้เสียภาษี</h2>
+        <h2 class="mb-4 fw-bold">ระบบค้นหาข้อมูลหนังสือรับรองหักภาษี ณ ที่จ่าย (ภ.ง.ด.3)</h2>
         <div class="row g-3 align-items-end justify-content-center text-start">
             <div class="col-md-8">
                 <label class="form-label fw-bold">เลขบัตรประชาชน 13 หลัก:</label>
