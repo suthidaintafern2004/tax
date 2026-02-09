@@ -25,9 +25,9 @@ if (isset($_GET['file'])) {
 
             // --- ส่วนการวางลายเซ็น ---
             // ปรับค่า x (ซ้าย-ขวา) และ y (บน-ลง) ตามต้องการ (หน่วยเป็นมิลลิเมตร)
-            $x = 113;
-            $y = 220;
-            $width = 70;
+            $x = 117;
+            $y = 222;
+            $width = 60;
 
             if (file_exists($signaturePath)) {
                 $pdf->Image($signaturePath, $x, $y, $width);
